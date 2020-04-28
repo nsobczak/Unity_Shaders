@@ -4,11 +4,16 @@
 	{
 		_Color("Color", Color) = (1,1,1,1)
 		_Gloss("Gloss", Float) = 5
+
 		_StepColor("Step_color", Float) = 4
 		_StepGloss("Step_gloss", Float) = 8
-		//_MainTex("Texture", 2D) = "white" {}
+
+		[MaterialToggle] _OutlineToggle("Outline_Toggle", Float) = 0
+		_OutlineSize("Outline_Size", Range(0, 1)) = 0.3
+		_OutlineGrayValue("Outline_GrayValue", Range(0, 1)) = 0
 	}
-		SubShader
+	
+	SubShader
 	{
 		Tags { "RenderType" = "Opaque" }
 
@@ -26,10 +31,7 @@
 			{
 				float4 vertex : POSITION;
 				float4 normal : NORMAL;
-				//float4 colors : COLOR;
-				//float4 tangent : TANGENT;
 				float2 uv0 : TEXCOORD0;
-				//float2 uv1 : TEXCOORD1;
 			};
 
 			struct VertexOutput
@@ -40,12 +42,13 @@
 				float3 worldPos : TEXCOORD2;
 			};
 
-			//sampler2D _MainTex;
-			//float4 _MainTex_ST;
 			float4 _Color;
 			float _Gloss;
 			float _StepColor;
 			float _StepGloss;
+			float _OutlineToggle;
+			float _OutlineSize;
+			float _OutlineGrayValue;
 
 			VertexOutput vert(VertextInput v)
 			{
@@ -58,6 +61,13 @@
 			}
 
 			float Posterize(float steps, float value) { return floor(value * steps) / steps; }
+
+			float3 Outline(float3 viewDir, float3 normal, float3 value)
+			{
+				//return _OutlineToggle == 1 ? (dot(viewDir, normal) <= _OutlineSize ? 0 : value) : value;
+				float3 outlineVal = lerp(value, _OutlineGrayValue, step(dot(viewDir, normal), _OutlineSize));
+				return lerp(outlineVal, value, step(_OutlineToggle, 0));
+			}
 
 			float4 frag(VertexOutput o) : SV_Target
 			{
@@ -84,12 +94,15 @@
 				float3 viewReflect = reflect(-viewDir, normal);
 				float specularFalloff = max(0, dot(viewReflect, lightDir));
 				specularFalloff = pow(specularFalloff, _Gloss); // gloss
-				specularFalloff = Posterize(_StepGloss, specularFalloff); // gloss
+				specularFalloff = Posterize(_StepGloss, specularFalloff); 
 				float3 directSpecular = specularFalloff * lightColor;
 
 				// composite
 				float3 diffuseLight = ambiantLight + directDiffuseLight;
 				float3 finalSurfaceColor = diffuseLight * _Color.rgb + directSpecular;
+
+				// outline
+				finalSurfaceColor = Outline(viewDir, normal, finalSurfaceColor);
 
 				return float4(finalSurfaceColor, 0);
 			}

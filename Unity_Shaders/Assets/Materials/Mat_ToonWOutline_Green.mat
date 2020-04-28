@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_Toon_Green
+  m_Name: Mat_ToonWOutline_Green
   m_Shader: {fileID: 4800000, guid: 10f87e9839b2d0244bdf86fc28a4db09, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _OUTLINETOGGLE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -68,8 +68,9 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Outline: 0
-    - _OutlineSize: 0.1
-    - _OutlineToggle: 0
+    - _OutlineGrayValue: 0
+    - _OutlineSize: 0.3
+    - _OutlineToggle: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
